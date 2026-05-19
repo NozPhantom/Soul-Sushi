@@ -751,7 +751,7 @@ tbody tr:hover td{background:var(--off-white)}
 // ═══════════════════════════════════════════════════════
 // FIREBASE
 // ═══════════════════════════════════════════════════════
-const FB_URL = 'https://ember-and-oaks-default-rtdb.firebaseio.com';
+const FB_URL = 'https://soul-sushi-default-rtdb.firebaseio.com/';
 const fbGet = async p => { try { const r = await fetch(`${FB_URL}/${p}.json`); return await r.json(); } catch { return null; } };
 const fbSet = async (p,d) => { try { const r = await fetch(`${FB_URL}/${p}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(d)}); return await r.json(); } catch { return null; } };
 const fbPush = async (p,d) => { try { const r = await fetch(`${FB_URL}/${p}.json`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(d)}); return await r.json(); } catch { return null; } };
@@ -761,8 +761,8 @@ const fbDelete = async p => { try { await fetch(`${FB_URL}/${p}.json`,{method:'D
 // ═══════════════════════════════════════════════════════
 // DISCORD WEBHOOKS
 // ═══════════════════════════════════════════════════════
-const WH_KASSE = 'https://discord.com/api/webhooks/1479517326490599474/Nwqu7V_e-r7d8n-OsH6zh-oGnxHGXwjfk9DxVRKtCfGd5mxtPPhoXV3VMPaaB6J2F6XV';
-const WH_LAGER = 'https://discord.com/api/webhooks/1503055845754142790/zW59wzfj7Cpbt9spOxVPc0gWvC2JDJM_nm8yxiUOqF8oGpqqRhwX5efgRZxxF3Ra0sN_';
+const WH_KASSE = 'https://discord.com/api/webhooks/1506280497964126368/MIT6WC4WuXxxhj-TTPGx_BROmCTrZWFcb9nt0rwhuqm897pzqFwMmkzf6TiS5rTg9WGJ';
+const WH_LAGER = 'https://discord.com/api/webhooks/1506280410974388346/ctXTzL7wIqkN7Bo6-lzzbYEGt9n627fXD11MyUPdEskTqlCcFA0PBAtkeZIhH2ZN5v36_';
 const WH_TAGES = 'https://discord.com/api/webhooks/1487515788251369492/yTAWQWHvzR07LiPoqWRFonbjQgSTnpM3oABMq9f2IKbetXSXUjTCctFjyE8wa6xH6S_e';
 async function sendDiscordEmbed(url, embed) { try { await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({embeds:[embed]})}); } catch {} }
 
