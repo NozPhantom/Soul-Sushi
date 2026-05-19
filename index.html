@@ -1,0 +1,1678 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Velora — ERP & POS</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
+:root{
+  --white:#ffffff;--off-white:#f8f8f8;--bg:#f4f5f7;
+  --border:#e2e4e9;--border-light:#eef0f4;
+  --text:#1a1d23;--text-secondary:#6b7280;--text-muted:#9ca3af;
+  --accent:#1a1d23;--accent-hover:#2d3240;
+  --green:#16a34a;--green-bg:#dcfce7;--green-border:#bbf7d0;
+  --yellow:#ca8a04;--yellow-bg:#fef9c3;
+  --red:#dc2626;--red-bg:#fee2e2;--red-border:#fecaca;
+  --blue:#2563eb;--blue-bg:#dbeafe;
+  --orange:#ea580c;--orange-bg:#ffedd5;
+  --shadow-sm:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+  --shadow:0 4px 12px rgba(0,0,0,.08);
+  --shadow-lg:0 8px 24px rgba(0,0,0,.1);
+  --radius:8px;--radius-lg:12px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);font-size:14px;min-height:100vh}
+
+/* AUTH */
+#auth-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--white)}
+.auth-box{width:360px;padding:48px 40px;border:1px solid var(--border);border-radius:var(--radius-lg);background:var(--white);box-shadow:var(--shadow-lg)}
+.auth-logo{text-align:center;margin-bottom:32px}
+.auth-logo h1{font-size:28px;font-weight:600;letter-spacing:-.5px}
+.auth-logo span{font-size:12px;color:var(--text-secondary);font-weight:400;letter-spacing:2px;text-transform:uppercase}
+.auth-box label{display:block;font-size:12px;font-weight:500;color:var(--text-secondary);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
+.auth-box input{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius);font-family:inherit;font-size:14px;outline:none;transition:border-color .15s;background:var(--off-white)}
+.auth-box input:focus{border-color:var(--accent);background:var(--white)}
+.form-group{margin-bottom:16px}
+.btn-primary{width:100%;padding:11px;background:var(--accent);color:var(--white);border:none;border-radius:var(--radius);font-family:inherit;font-size:14px;font-weight:500;cursor:pointer;transition:background .15s;margin-top:8px}
+.btn-primary:hover{background:var(--accent-hover)}
+.auth-error{color:var(--red);font-size:13px;margin-top:10px;text-align:center;min-height:20px}
+
+/* LAYOUT */
+#app{display:none;min-height:100vh}
+.topbar{position:fixed;top:0;left:0;right:0;height:52px;background:var(--white);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;z-index:100;gap:12px}
+.topbar-brand{font-weight:600;font-size:16px;letter-spacing:-.3px}
+.topbar-brand span{font-size:11px;color:var(--text-muted);letter-spacing:1.5px;text-transform:uppercase;margin-left:6px;font-weight:400}
+.topbar-spacer{flex:1}
+.mode-toggle{display:flex;background:var(--bg);border-radius:6px;padding:3px;gap:2px;border:1px solid var(--border)}
+.mode-btn{padding:5px 14px;border:none;background:transparent;border-radius:4px;font-family:inherit;font-size:12px;font-weight:500;cursor:pointer;color:var(--text-secondary);transition:all .15s}
+.mode-btn.active{background:var(--white);color:var(--text);box-shadow:var(--shadow-sm)}
+.topbar-user{display:flex;align-items:center;gap:8px;font-size:13px}
+.topbar-user-avatar{width:30px;height:30px;background:var(--accent);color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600}
+.stamp-btn-top{padding:6px 12px;border:1px solid var(--border);background:var(--white);border-radius:6px;font-family:inherit;font-size:12px;font-weight:500;cursor:pointer;transition:all .15s}
+.stamp-btn-top.stamped{background:var(--green-bg);border-color:var(--green-border);color:var(--green)}
+
+/* SIDEBAR */
+.sidebar{position:fixed;top:52px;left:0;width:220px;bottom:0;background:var(--white);border-right:1px solid var(--border);overflow-y:auto;padding:12px 0}
+.nav-item{display:flex;align-items:center;padding:8px 16px;gap:9px;cursor:pointer;color:var(--text-secondary);font-size:13px;font-weight:400;transition:all .15s;border-left:2px solid transparent;margin:1px 0;position:relative}
+.nav-item:hover{background:var(--bg);color:var(--text)}
+.nav-item.active{background:var(--bg);color:var(--text);font-weight:500;border-left-color:var(--accent)}
+.nav-item svg{width:15px;height:15px;opacity:.7;flex-shrink:0}
+.nav-item.active svg{opacity:1}
+.nav-badge{margin-left:auto;background:var(--red);color:#fff;font-size:10px;font-weight:700;border-radius:10px;padding:1px 6px;min-width:18px;text-align:center;line-height:16px}
+.nav-folder-header{display:flex;align-items:center;padding:8px 16px;gap:9px;cursor:pointer;color:var(--text-secondary);font-size:13px;font-weight:500;transition:all .15s;user-select:none}
+.nav-folder-header:hover{color:var(--text)}
+.nav-folder-header svg{width:15px;height:15px;opacity:.6}
+.nav-folder-chevron{margin-left:auto;width:12px;height:12px;transition:transform .2s}
+.nav-folder.open .nav-folder-chevron{transform:rotate(90deg)}
+.nav-folder-items{display:none;padding-left:8px}
+.nav-folder.open .nav-folder-items{display:block}
+.nav-divider{height:1px;background:var(--border-light);margin:8px 14px}
+
+/* MAIN */
+.main{margin-left:220px;margin-top:52px;padding:28px;min-height:calc(100vh - 52px)}
+.page{display:none}.page.active{display:block}
+.page-header{margin-bottom:24px;display:flex;align-items:flex-start;justify-content:space-between;gap:16px}
+.page-title{font-size:20px;font-weight:600;letter-spacing:-.3px}
+.page-subtitle{font-size:13px;color:var(--text-secondary);margin-top:2px}
+
+/* CARDS */
+.card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;box-shadow:var(--shadow-sm)}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px;margin-bottom:24px}
+.stat-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px 20px;box-shadow:var(--shadow-sm)}
+.stat-label{font-size:11px;font-weight:500;color:var(--text-muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px}
+.stat-value{font-size:24px;font-weight:600;letter-spacing:-.5px}
+.stat-sub{font-size:12px;color:var(--text-secondary);margin-top:3px}
+
+/* TABLE */
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;padding:10px 14px;font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.6px;border-bottom:1px solid var(--border)}
+td{padding:12px 14px;border-bottom:1px solid var(--border-light);font-size:13px;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:var(--off-white)}
+.dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+.dot-green{background:var(--green)}.dot-yellow{background:var(--yellow)}.dot-red{background:var(--red)}
+
+/* BUTTONS */
+.btn{padding:8px 16px;border-radius:var(--radius);font-family:inherit;font-size:13px;font-weight:500;cursor:pointer;border:1px solid transparent;transition:all .15s;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.btn-sm{padding:5px 11px;font-size:12px}
+.btn-xs{padding:3px 8px;font-size:11px}
+.btn-dark{background:var(--accent);color:white;border-color:var(--accent)}
+.btn-dark:hover{background:var(--accent-hover)}
+.btn-outline{background:transparent;border-color:var(--border);color:var(--text)}
+.btn-outline:hover{background:var(--bg)}
+.btn-red{background:var(--red);color:white;border-color:var(--red)}
+.btn-red:hover{background:#b91c1c}
+.btn-green{background:var(--green);color:white;border-color:var(--green)}
+.btn-green:hover{background:#15803d}
+
+/* FORMS */
+.form-row{display:grid;gap:14px;margin-bottom:14px}
+.form-row.cols-2{grid-template-columns:1fr 1fr}
+.form-row.cols-3{grid-template-columns:1fr 1fr 1fr}
+.field label{display:block;font-size:12px;font-weight:500;color:var(--text-secondary);margin-bottom:5px}
+.field input,.field select,.field textarea{width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:var(--radius);font-family:inherit;font-size:13px;outline:none;transition:border-color .15s;background:var(--white)}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--accent)}
+.field textarea{resize:vertical;min-height:80px}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.3);z-index:200;display:none;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.open{display:flex}
+.modal{background:var(--white);border-radius:var(--radius-lg);padding:28px;width:500px;max-width:100%;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow-lg)}
+.modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.modal-title{font-size:16px;font-weight:600}
+.modal-close{background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:20px;line-height:1}
+.modal-close:hover{color:var(--text)}
+.modal-footer{display:flex;justify-content:flex-end;gap:10px;margin-top:20px;padding-top:16px;border-top:1px solid var(--border-light)}
+
+/* BADGE */
+.badge{display:inline-flex;align-items:center;padding:3px 8px;border-radius:4px;font-size:11px;font-weight:600;white-space:nowrap}
+.badge-green{background:var(--green-bg);color:var(--green)}
+.badge-yellow{background:var(--yellow-bg);color:var(--yellow)}
+.badge-red{background:var(--red-bg);color:var(--red)}
+.badge-blue{background:var(--blue-bg);color:var(--blue)}
+.badge-orange{background:var(--orange-bg);color:var(--orange)}
+.badge-gray{background:var(--bg);color:var(--text-secondary);border:1px solid var(--border)}
+
+/* TASK CARDS (Aufgaben) */
+.task-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px 18px;box-shadow:var(--shadow-sm);margin-bottom:10px;position:relative}
+.task-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;gap:12px}
+.task-card-title{font-size:13px;font-weight:600;display:flex;align-items:center;gap:8px}
+.task-card-meta{font-size:12px;color:var(--text-secondary);line-height:1.5}
+.task-card-actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;align-items:center}
+.task-del-btn{position:absolute;top:12px;right:12px;background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:16px;padding:2px;line-height:1}
+.task-del-btn:hover{color:var(--red)}
+.task-card.type-spesen{border-left:3px solid var(--blue)}
+.task-card.type-absenz{border-left:3px solid var(--orange)}
+.task-card.type-result{border-left:3px solid var(--green)}
+.task-card.type-result-red{border-left:3px solid var(--red)}
+
+/* NOTIFICATION DOT */
+.notify-dot{width:8px;height:8px;border-radius:50%;background:var(--red);display:inline-block;margin-left:4px;flex-shrink:0}
+
+/* CAL */
+.cal-day{width:28px;height:28px;border-radius:4px;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;background:var(--bg);color:var(--text-muted)}
+.cal-day.absenz{background:#fde68a;color:#92400e}
+.cal-day.weekend{background:var(--border-light);color:#ccc}
+.cal-day.absent-gray{background:#d1d5db;color:#6b7280}
+
+/* WORKING TIME */
+.time-display{font-size:48px;font-weight:300;letter-spacing:-2px;font-variant-numeric:tabular-nums}
+
+/* POS */
+#pos-screen{display:none;height:calc(100vh - 52px);margin-top:52px;overflow:hidden}
+.pos-wrap{display:flex;height:100%}
+.pos-products{flex:1;overflow-y:auto;padding:20px;background:var(--bg)}
+.pos-sidebar-right{width:340px;background:var(--white);border-left:1px solid var(--border);display:flex;flex-direction:column}
+.pos-categories{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+.pos-cat-btn{padding:7px 14px;border:1px solid var(--border);border-radius:20px;background:var(--white);font-family:inherit;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s}
+.pos-cat-btn.active{background:var(--accent);color:white;border-color:var(--accent)}
+.pos-product-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}
+.pos-product-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px 12px;cursor:pointer;transition:all .15s;text-align:center}
+.pos-product-card:hover{border-color:var(--accent);box-shadow:var(--shadow-sm)}
+.pos-product-name{font-size:13px;font-weight:500;margin-bottom:4px}
+.pos-product-price{font-size:15px;font-weight:600}
+.pos-receipt-header{padding:16px 16px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.pos-receipt-title{font-size:14px;font-weight:600}
+.pos-receipt-items{flex:1;overflow-y:auto;padding:12px 16px}
+.pos-receipt-item{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border-light)}
+.pos-item-name{flex:1;font-size:13px}
+.pos-qty-ctrl{display:flex;align-items:center;gap:6px}
+.pos-qty-btn{width:24px;height:24px;border:1px solid var(--border);border-radius:4px;background:var(--bg);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;font-family:inherit}
+.pos-qty-btn:hover{background:var(--border)}
+.pos-qty-num{min-width:28px;text-align:center;font-size:13px;font-weight:500;cursor:pointer;padding:2px 4px;border-radius:4px}
+.pos-qty-num:hover{background:var(--bg)}
+.pos-item-price{font-size:13px;font-weight:500;min-width:64px;text-align:right}
+.pos-item-del{cursor:pointer;color:var(--text-muted);font-size:16px}
+.pos-item-del:hover{color:var(--red)}
+.pos-receipt-footer{padding:16px;border-top:1px solid var(--border)}
+.pos-total-row{display:flex;justify-content:space-between;font-size:15px;font-weight:600;margin-bottom:12px}
+.pos-send-btn{width:100%;padding:12px;background:var(--accent);color:white;border:none;border-radius:var(--radius);font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;transition:background .15s}
+.pos-send-btn:hover{background:var(--accent-hover)}
+.pos-empty{text-align:center;padding:32px 16px;color:var(--text-muted);font-size:13px}
+
+/* INLINE EDIT */
+.editable-field{border:1px solid transparent;border-radius:4px;padding:4px 6px;cursor:text;transition:all .15s}
+.editable-field:hover{border-color:var(--border);background:var(--bg)}
+.editable-field:focus{outline:none;border-color:var(--accent);background:var(--white)}
+
+/* UTILS */
+.flex{display:flex}.flex-center{display:flex;align-items:center}
+.gap-8{gap:8px}.gap-12{gap:12px}
+.mb-8{margin-bottom:8px}.mb-12{margin-bottom:12px}.mb-16{margin-bottom:16px}.mb-20{margin-bottom:20px}.mb-24{margin-bottom:24px}
+.text-muted{color:var(--text-muted)}.text-secondary{color:var(--text-secondary)}
+.text-sm{font-size:12px}.text-xs{font-size:11px}
+.fw-500{font-weight:500}.fw-600{font-weight:600}
+.green{color:var(--green)}.red{color:var(--red)}.yellow{color:var(--yellow)}
+.hr{border:none;border-top:1px solid var(--border-light);margin:16px 0}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+
+/* TOAST */
+.toast-container{position:fixed;top:64px;right:20px;z-index:999;display:flex;flex-direction:column;gap:8px}
+.toast{background:var(--text);color:white;padding:10px 16px;border-radius:var(--radius);font-size:13px;box-shadow:var(--shadow-lg);animation:slideIn .2s ease}
+.toast.success{background:var(--green)}.toast.error{background:var(--red)}
+@keyframes slideIn{from{transform:translateX(40px);opacity:0}to{transform:translateX(0);opacity:1}}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--text-muted)}
+
+.presence-dot{width:8px;height:8px;border-radius:50%;background:var(--border);display:inline-block}
+.presence-dot.online{background:var(--green)}
+
+/* QTY OVERLAY */
+.qty-input-overlay{position:fixed;inset:0;background:rgba(0,0,0,.25);z-index:300;display:none;align-items:center;justify-content:center}
+.qty-input-overlay.open{display:flex}
+.qty-input-box{background:white;border-radius:10px;padding:24px;text-align:center;box-shadow:var(--shadow-lg);width:220px}
+.qty-input-box input{width:100%;text-align:center;font-size:28px;font-weight:600;border:1px solid var(--border);border-radius:6px;padding:8px;font-family:inherit;outline:none}
+.qty-input-box p{font-size:13px;color:var(--text-secondary);margin-bottom:10px}
+.qty-input-actions{display:flex;gap:8px;margin-top:12px}
+
+/* TRANSACTION DETAIL */
+.txn-row{cursor:pointer}
+.txn-row:hover td{background:var(--off-white)}
+</style>
+</head>
+<body>
+
+<!-- AUTH -->
+<div id="auth-screen">
+  <div class="auth-box">
+    <div class="auth-logo"><h1>Velora</h1><span>ERP & POS</span></div>
+    <div class="form-group">
+      <label>Benutzername</label>
+      <input type="text" id="login-user" placeholder="Username" autocomplete="username">
+    </div>
+    <div class="form-group">
+      <label>Passwort</label>
+      <input type="password" id="login-pass" placeholder="Passwort" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <button class="btn-primary" onclick="doLogin()">Anmelden</button>
+    <div class="auth-error" id="auth-error"></div>
+  </div>
+</div>
+
+<!-- TOASTS -->
+<div class="toast-container" id="toast-container"></div>
+
+<!-- QTY OVERLAY -->
+<div class="qty-input-overlay" id="qty-overlay">
+  <div class="qty-input-box">
+    <p id="qty-overlay-label">Menge eingeben</p>
+    <input type="number" id="qty-overlay-input" min="0" step="1" onkeydown="if(event.key==='Enter')confirmQtyOverlay()">
+    <div class="qty-input-actions">
+      <button class="btn btn-outline" style="flex:1" onclick="closeQtyOverlay()">Abbrechen</button>
+      <button class="btn btn-dark" style="flex:1" onclick="confirmQtyOverlay()">OK</button>
+    </div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="topbar-brand">Velora <span>ERP & POS</span></div>
+    <div class="topbar-spacer"></div>
+    <div class="mode-toggle">
+      <button class="mode-btn active" id="mode-erp" onclick="switchMode('erp')">ERP</button>
+      <button class="mode-btn" id="mode-pos" onclick="switchMode('pos')">POS</button>
+    </div>
+    <button class="stamp-btn-top" id="topbar-stamp-btn" onclick="toggleStamp()">Kommen</button>
+    <div class="topbar-user">
+      <div class="topbar-user-avatar" id="topbar-avatar">U</div>
+      <span id="topbar-username" style="font-size:13px;font-weight:500">User</span>
+    </div>
+    <button class="btn btn-sm btn-outline" onclick="doLogout()">Abmelden</button>
+  </div>
+
+  <!-- ERP SCREEN -->
+  <div id="erp-screen">
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      <div class="nav-item active" onclick="showPage('home')" data-page="home">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        Home
+      </div>
+      <div class="nav-item" onclick="showPage('aufgaben')" data-page="aufgaben" id="nav-aufgaben">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><polyline points="9 12 11 14 15 10"/></svg>
+        Aufgaben
+        <span class="nav-badge" id="aufgaben-badge" style="display:none">0</span>
+      </div>
+      <div class="nav-item" onclick="showPage('inout')" data-page="inout">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        In &amp; Out
+      </div>
+      <div class="nav-item" onclick="showPage('employees')" data-page="employees">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+        Mitarbeiterverzeichnis
+      </div>
+      <div class="nav-divider"></div>
+      <div class="nav-folder" id="folder-zeiterfassung">
+        <div class="nav-folder-header" onclick="toggleFolder('folder-zeiterfassung')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          Zeiterfassung
+          <svg class="nav-folder-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+        <div class="nav-folder-items">
+          <div class="nav-item" onclick="showPage('spesen')" data-page="spesen">Spesen</div>
+          <div class="nav-item" onclick="showPage('absenzen')" data-page="absenzen">Absenzen</div>
+          <div class="nav-item" onclick="showPage('arbeitsübersicht')" data-page="arbeitsübersicht">Arbeitsübersicht</div>
+        </div>
+      </div>
+      <div class="nav-divider"></div>
+      <div id="hr-folder-nav" style="display:none">
+        <div class="nav-folder" id="folder-hr">
+          <div class="nav-folder-header" onclick="toggleFolder('folder-hr')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M6 20v-2a4 4 0 014-4h4a4 4 0 014 4v2"/></svg>
+            HR
+            <svg class="nav-folder-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+          </div>
+          <div class="nav-folder-items">
+            <div class="nav-item" onclick="showPage('hr-rollen')" data-page="hr-rollen">Rollen</div>
+            <div class="nav-item" onclick="showPage('hr-arbeiter')" data-page="hr-arbeiter">Arbeiter</div>
+            <div class="nav-item" onclick="showPage('hr-spesen')" data-page="hr-spesen">Spesen</div>
+            <div class="nav-item" onclick="showPage('hr-transaktionen')" data-page="hr-transaktionen">Transaktionen</div>
+            <div class="nav-item" onclick="showPage('hr-statistiken')" data-page="hr-statistiken">Statistiken</div>
+            <div class="nav-item" onclick="showPage('hr-lager')" data-page="hr-lager">Lager</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAGES -->
+    <div class="main">
+
+      <!-- HOME -->
+      <div class="page active" id="page-home">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Home</div>
+            <div class="page-subtitle" id="home-date"></div>
+          </div>
+          <button class="btn btn-dark" id="home-stamp-btn" onclick="toggleStamp()">▶ Kommen</button>
+        </div>
+        <div class="card mb-24" style="text-align:center;padding:32px">
+          <div class="text-muted text-xs mb-12" style="text-transform:uppercase;letter-spacing:1px">Arbeitszeit diese Woche</div>
+          <div class="time-display" id="week-time-display">00:00:00</div>
+          <div id="stamp-status" class="text-secondary" style="margin-top:12px;font-size:13px">Nicht eingestempelt</div>
+          <div id="live-timer-display" style="font-size:13px;color:var(--text-secondary);margin-top:6px;display:none">Session: <span id="live-session-time" class="fw-500">00:00:00</span></div>
+        </div>
+        <div class="grid-2">
+          <div class="card">
+            <div class="text-muted text-xs mb-12" style="text-transform:uppercase;letter-spacing:1px">Heutige Sessions</div>
+            <div id="today-sessions-list"><div class="text-muted text-sm">Keine Einträge heute</div></div>
+          </div>
+          <div class="card">
+            <div class="text-muted text-xs mb-12" style="text-transform:uppercase;letter-spacing:1px">Wochenzusammenfassung</div>
+            <div id="week-summary-list"><div class="text-muted text-sm">Keine Einträge diese Woche</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- AUFGABEN -->
+      <div class="page" id="page-aufgaben">
+        <div class="page-header"><div class="page-title">Aufgaben</div></div>
+        <div id="aufgaben-list"><div class="text-muted text-sm">Keine Aufgaben</div></div>
+      </div>
+
+      <!-- IN & OUT -->
+      <div class="page" id="page-inout">
+        <div class="page-header"><div class="page-title">In &amp; Out</div></div>
+        <div class="card mb-16" style="padding:20px 24px">
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0;text-align:center">
+            <div style="padding:0 16px">
+              <div style="font-size:22px;font-weight:600;font-variant-numeric:tabular-nums" id="io-heute">00:00</div>
+              <div class="text-muted text-xs" style="text-transform:uppercase;letter-spacing:.8px;margin-top:4px">Heute</div>
+            </div>
+            <div style="padding:0 16px;border-left:1px solid var(--border-light)">
+              <div style="font-size:22px;font-weight:600;font-variant-numeric:tabular-nums" id="io-woche">00:00</div>
+              <div class="text-muted text-xs" style="text-transform:uppercase;letter-spacing:.8px;margin-top:4px">Diese Woche</div>
+            </div>
+            <div style="padding:0 16px;border-left:1px solid var(--border-light)">
+              <div style="font-size:22px;font-weight:600" id="io-sessions">0</div>
+              <div class="text-muted text-xs" style="text-transform:uppercase;letter-spacing:.8px;margin-top:4px">Sessions Total</div>
+            </div>
+            <div style="padding:0 16px;border-left:1px solid var(--border-light)">
+              <div id="io-status-wrap" style="margin-top:2px"></div>
+              <div class="text-muted text-xs" style="text-transform:uppercase;letter-spacing:.8px;margin-top:4px">Status</div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Datum</th><th>Eingestempelt</th><th>Ausgestempelt</th><th>Dauer</th></tr></thead>
+              <tbody id="inout-table-body"><tr><td colspan="4" class="text-muted text-sm" style="padding:20px">Keine Einträge</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- MITARBEITERVERZEICHNIS -->
+      <div class="page" id="page-employees">
+        <div class="page-header"><div class="page-title">Mitarbeiterverzeichnis</div></div>
+        <div class="card">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th></th><th>Name</th><th>Username</th><th>Telefon</th><th>Rolle</th><th>Status</th></tr></thead>
+              <tbody id="employees-table-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- SPESEN (eigene) -->
+      <div class="page" id="page-spesen">
+        <div class="page-header">
+          <div class="page-title">Spesen</div>
+          <button class="btn btn-dark" onclick="openModal('modal-spesen')">+ Spesen erfassen</button>
+        </div>
+        <div class="card">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Datum</th><th>Betrag (EUR)</th><th>Buchungstext</th><th>Status</th><th>Ablehnungsgrund</th></tr></thead>
+              <tbody id="spesen-table-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ABSENZEN -->
+      <div class="page" id="page-absenzen">
+        <div class="page-header">
+          <div class="page-title">Absenzen</div>
+          <button class="btn btn-dark" onclick="openModal('modal-absenz')">+ Absenz erfassen</button>
+        </div>
+        <div class="card">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Von</th><th>Bis</th><th>Grund</th><th>Status</th></tr></thead>
+              <tbody id="absenzen-table-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ARBEITSÜBERSICHT -->
+      <div class="page" id="page-arbeitsübersicht">
+        <div class="page-header"><div class="page-title">Arbeitsübersicht</div></div>
+        <div class="card">
+          <div class="table-wrap" id="arbeit-overview-wrap" style="overflow-x:auto"></div>
+        </div>
+      </div>
+
+      <!-- HR ROLLEN -->
+      <div class="page" id="page-hr-rollen">
+        <div class="page-header">
+          <div class="page-title">Rollen</div>
+          <button class="btn btn-dark" onclick="openModal('modal-new-role')">+ Rolle erstellen</button>
+        </div>
+        <div class="card">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Rollenname</th><th>HR-Berechtigung</th><th>Aktionen</th></tr></thead>
+              <tbody id="roles-table-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- HR ARBEITER -->
+      <div class="page" id="page-hr-arbeiter">
+        <div class="page-header">
+          <div class="page-title">Arbeiter</div>
+          <button class="btn btn-dark" onclick="openModal('modal-add-worker')">+ Login hinzufügen</button>
+        </div>
+        <div class="card">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Name</th><th>Username</th><th>Telefon</th><th>Rolle</th><th>Verkäufe</th><th>Umsatz</th><th>Boni</th><th></th></tr></thead>
+              <tbody id="hr-workers-table-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- HR SPESEN -->
+      <div class="page" id="page-hr-spesen">
+        <div class="page-header"><div class="page-title">Spesen — Alle Mitarbeiter</div></div>
+        <div class="card">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Mitarbeiter</th><th>Datum</th><th>Betrag</th><th>Buchungstext</th><th>Status</th><th>Aktionen</th></tr></thead>
+              <tbody id="hr-spesen-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- HR TRANSAKTIONEN -->
+      <div class="page" id="page-hr-transaktionen">
+        <div class="page-header"><div class="page-title">Transaktionen</div></div>
+        <div class="card">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Datum / Zeit</th><th>Mitarbeiter</th><th>Betrag</th><th>Artikel</th></tr></thead>
+              <tbody id="txn-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- HR STATISTIKEN -->
+      <div class="page" id="page-hr-statistiken">
+        <div class="page-header"><div class="page-title">Statistiken</div></div>
+        <div class="stats-grid" id="stats-grid"></div>
+      </div>
+
+      <!-- HR LAGER -->
+      <div class="page" id="page-hr-lager">
+        <div class="page-header">
+          <div class="page-title">Lager</div>
+          <div class="flex gap-8">
+            <button class="btn btn-outline btn-sm" onclick="openModal('modal-add-category')">+ Kategorie</button>
+            <button class="btn btn-dark" onclick="openModal('modal-add-product')">+ Produkt</button>
+          </div>
+        </div>
+        <div class="card mb-16">
+          <div class="text-muted text-xs mb-12" style="text-transform:uppercase;letter-spacing:1px">Kategorien</div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center" id="category-list-display"></div>
+        </div>
+        <div class="card">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th></th><th>Produktname</th><th>Lagerbestand</th><th>Einkaufspreis</th><th>Verkaufspreis</th><th>Kategorie</th><th></th></tr></thead>
+              <tbody id="lager-table-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /main -->
+  </div><!-- /erp-screen -->
+
+  <!-- POS SCREEN -->
+  <div id="pos-screen">
+    <div class="pos-wrap">
+      <div class="pos-products">
+        <div class="pos-categories" id="pos-categories"></div>
+        <div class="pos-product-grid" id="pos-product-grid"></div>
+      </div>
+      <div class="pos-sidebar-right">
+        <div class="pos-receipt-header">
+          <div class="pos-receipt-title">Quittung</div>
+          <button class="btn btn-sm btn-outline" onclick="clearReceipt()">Leeren</button>
+        </div>
+        <div class="pos-receipt-items" id="pos-receipt-items">
+          <div class="pos-empty">Noch keine Produkte</div>
+        </div>
+        <div class="pos-receipt-footer">
+          <div class="pos-total-row"><span>Total</span><span id="pos-total">EUR 0.00</span></div>
+          <button class="pos-send-btn" onclick="sendReceipt()">Quittung absenden</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /app -->
+
+<!-- MODALS -->
+<!-- Spesen erfassen -->
+<div class="modal-overlay" id="modal-spesen">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">Spesen erfassen</div><button class="modal-close" onclick="closeModal('modal-spesen')">×</button></div>
+    <div class="form-row"><div class="field"><label>Datum</label><input type="date" id="spesen-datum"></div></div>
+    <div class="form-row"><div class="field"><label>Betrag (EUR)</label><input type="number" id="spesen-menge" placeholder="0.00" step="0.01"></div></div>
+    <div class="form-row"><div class="field"><label>Buchungstext / Begründung</label><textarea id="spesen-text" placeholder="Beschreibung..."></textarea></div></div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-spesen')">Abbrechen</button>
+      <button class="btn btn-dark" onclick="submitSpesen()">Abschicken</button>
+    </div>
+  </div>
+</div>
+
+<!-- Absenz erfassen -->
+<div class="modal-overlay" id="modal-absenz">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">Absenz erfassen</div><button class="modal-close" onclick="closeModal('modal-absenz')">×</button></div>
+    <div class="form-row cols-2">
+      <div class="field"><label>Datum von</label><input type="date" id="absenz-von"></div>
+      <div class="field"><label>Datum bis</label><input type="date" id="absenz-bis"></div>
+    </div>
+    <div class="form-row"><div class="field"><label>Grund</label><textarea id="absenz-grund" placeholder="Grund der Absenz..."></textarea></div></div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-absenz')">Abbrechen</button>
+      <button class="btn btn-dark" onclick="submitAbsenz()">Absenz absenden</button>
+    </div>
+  </div>
+</div>
+
+<!-- Spesen ablehnen (HR) -->
+<div class="modal-overlay" id="modal-spesen-ablehnen">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">Spesen ablehnen</div><button class="modal-close" onclick="closeModal('modal-spesen-ablehnen')">×</button></div>
+    <input type="hidden" id="ablehnen-spesen-id">
+    <input type="hidden" id="ablehnen-task-id">
+    <div class="form-row"><div class="field"><label>Ablehnungsgrund (Pflicht)</label><textarea id="ablehnen-grund" placeholder="Bitte Grund angeben..."></textarea></div></div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-spesen-ablehnen')">Abbrechen</button>
+      <button class="btn btn-red" onclick="confirmAblehnen()">Ablehnen</button>
+    </div>
+  </div>
+</div>
+
+<!-- Transaktion Detail -->
+<div class="modal-overlay" id="modal-txn-detail">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">Transaktion Details</div><button class="modal-close" onclick="closeModal('modal-txn-detail')">×</button></div>
+    <div id="txn-detail-body"></div>
+    <div class="modal-footer"><button class="btn btn-outline" onclick="closeModal('modal-txn-detail')">Schliessen</button></div>
+  </div>
+</div>
+
+<!-- Neue Rolle -->
+<div class="modal-overlay" id="modal-new-role">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">Rolle erstellen</div><button class="modal-close" onclick="closeModal('modal-new-role')">×</button></div>
+    <div class="form-row"><div class="field"><label>Rollenname</label><input type="text" id="role-name-input" placeholder="z.B. Manager"></div></div>
+    <div class="form-row"><div class="field"><label>HR-Berechtigung</label>
+      <select id="role-hr-input"><option value="false">Nein</option><option value="true">Ja</option></select>
+    </div></div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-new-role')">Abbrechen</button>
+      <button class="btn btn-dark" onclick="saveRole()">Speichern</button>
+    </div>
+  </div>
+</div>
+
+<!-- Login hinzufügen -->
+<div class="modal-overlay" id="modal-add-worker">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">Login hinzufügen</div><button class="modal-close" onclick="closeModal('modal-add-worker')">×</button></div>
+    <div class="form-row cols-2">
+      <div class="field"><label>Vorname</label><input type="text" id="aw-firstname" placeholder="Max"></div>
+      <div class="field"><label>Nachname</label><input type="text" id="aw-lastname" placeholder="Muster"></div>
+    </div>
+    <div class="form-row cols-2">
+      <div class="field"><label>Username</label><input type="text" id="aw-username" placeholder="m.muster"></div>
+      <div class="field"><label>Passwort</label><input type="password" id="aw-password" placeholder="Passwort"></div>
+    </div>
+    <div class="form-row cols-2">
+      <div class="field"><label>Telefonnummer</label><input type="text" id="aw-phone" placeholder="+49 170 000 0000"></div>
+      <div class="field"><label>Rolle</label><select id="aw-role"><option value="">-- Rolle wählen --</option></select></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-add-worker')">Abbrechen</button>
+      <button class="btn btn-dark" onclick="addWorker()">Speichern</button>
+    </div>
+  </div>
+</div>
+
+<!-- Mitarbeiter bearbeiten -->
+<div class="modal-overlay" id="modal-edit-worker">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">Mitarbeiter bearbeiten</div><button class="modal-close" onclick="closeModal('modal-edit-worker')">×</button></div>
+    <input type="hidden" id="ew-id">
+    <div class="form-row cols-2">
+      <div class="field"><label>Vorname</label><input type="text" id="ew-firstname"></div>
+      <div class="field"><label>Nachname</label><input type="text" id="ew-lastname"></div>
+    </div>
+    <div class="form-row cols-2">
+      <div class="field"><label>Username</label><input type="text" id="ew-username"></div>
+      <div class="field"><label>Neues Passwort</label><input type="password" id="ew-password" placeholder="Leer = unverändert"></div>
+    </div>
+    <div class="form-row cols-2">
+      <div class="field"><label>Telefonnummer</label><input type="text" id="ew-phone"></div>
+      <div class="field"><label>Rolle</label><select id="ew-role"></select></div>
+    </div>
+    <div class="hr"></div>
+    <div class="grid-3" style="margin-bottom:0">
+      <div class="stat-card" style="padding:12px"><div class="stat-label">Verkäufe</div><div class="fw-600" id="ew-sales-count">0</div></div>
+      <div class="stat-card" style="padding:12px"><div class="stat-label">Umsatz</div><div class="fw-600" id="ew-revenue">EUR 0.00</div></div>
+      <div class="stat-card" style="padding:12px"><div class="stat-label">Boni</div><div class="fw-600" id="ew-boni">EUR 0.00</div></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-red btn-sm" id="ew-delete-btn" onclick="deleteWorker()">Löschen</button>
+      <div style="flex:1"></div>
+      <button class="btn btn-outline" onclick="closeModal('modal-edit-worker')">Abbrechen</button>
+      <button class="btn btn-dark" onclick="saveWorker()">Speichern</button>
+    </div>
+  </div>
+</div>
+
+<!-- Produkt hinzufügen -->
+<div class="modal-overlay" id="modal-add-product">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">Produkt hinzufügen</div><button class="modal-close" onclick="closeModal('modal-add-product')">×</button></div>
+    <div class="form-row"><div class="field"><label>Produktname</label><input type="text" id="ap-name" placeholder="Produktname"></div></div>
+    <div class="form-row cols-3">
+      <div class="field"><label>Lagerbestand</label><input type="number" id="ap-stock" placeholder="0" min="0"></div>
+      <div class="field"><label>Einkaufspreis (EUR)</label><input type="number" id="ap-buy" placeholder="0.00" step="0.01"></div>
+      <div class="field"><label>Verkaufspreis (EUR)</label><input type="number" id="ap-sell" placeholder="0.00" step="0.01"></div>
+    </div>
+    <div class="form-row"><div class="field"><label>Kategorie</label><select id="ap-category"></select></div></div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-add-product')">Abbrechen</button>
+      <button class="btn btn-dark" onclick="addProduct()">Speichern</button>
+    </div>
+  </div>
+</div>
+
+<!-- Kategorie hinzufügen -->
+<div class="modal-overlay" id="modal-add-category">
+  <div class="modal" style="width:380px">
+    <div class="modal-header"><div class="modal-title">Kategorie hinzufügen</div><button class="modal-close" onclick="closeModal('modal-add-category')">×</button></div>
+    <div class="form-row"><div class="field"><label>Kategoriename</label><input type="text" id="cat-name-input" placeholder="z.B. Getränke"></div></div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-add-category')">Abbrechen</button>
+      <button class="btn btn-dark" onclick="addCategory()">Speichern</button>
+    </div>
+  </div>
+</div>
+
+<!-- Kategorie bearbeiten -->
+<div class="modal-overlay" id="modal-edit-category">
+  <div class="modal" style="width:380px">
+    <div class="modal-header"><div class="modal-title">Kategorie bearbeiten</div><button class="modal-close" onclick="closeModal('modal-edit-category')">×</button></div>
+    <input type="hidden" id="edit-cat-id">
+    <div class="form-row"><div class="field"><label>Kategoriename</label><input type="text" id="edit-cat-name"></div></div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-edit-category')">Abbrechen</button>
+      <button class="btn btn-dark" onclick="saveCategoryEdit()">Speichern</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// FIREBASE
+// ═══════════════════════════════════════════════════════
+const FB_URL = 'https://ember-and-oaks-default-rtdb.firebaseio.com';
+const fbGet = async p => { try { const r = await fetch(`${FB_URL}/${p}.json`); return await r.json(); } catch { return null; } };
+const fbSet = async (p,d) => { try { const r = await fetch(`${FB_URL}/${p}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(d)}); return await r.json(); } catch { return null; } };
+const fbPush = async (p,d) => { try { const r = await fetch(`${FB_URL}/${p}.json`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(d)}); return await r.json(); } catch { return null; } };
+const fbUpdate = async (p,d) => { try { const r = await fetch(`${FB_URL}/${p}.json`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(d)}); return await r.json(); } catch { return null; } };
+const fbDelete = async p => { try { await fetch(`${FB_URL}/${p}.json`,{method:'DELETE'}); return true; } catch { return false; } };
+
+// ═══════════════════════════════════════════════════════
+// DISCORD WEBHOOKS
+// ═══════════════════════════════════════════════════════
+const WH_KASSE = 'https://discord.com/api/webhooks/1479517326490599474/Nwqu7V_e-r7d8n-OsH6zh-oGnxHGXwjfk9DxVRKtCfGd5mxtPPhoXV3VMPaaB6J2F6XV';
+const WH_LAGER = 'https://discord.com/api/webhooks/1503055845754142790/zW59wzfj7Cpbt9spOxVPc0gWvC2JDJM_nm8yxiUOqF8oGpqqRhwX5efgRZxxF3Ra0sN_';
+const WH_TAGES = 'https://discord.com/api/webhooks/1487515788251369492/yTAWQWHvzR07LiPoqWRFonbjQgSTnpM3oABMq9f2IKbetXSXUjTCctFjyE8wa6xH6S_e';
+async function sendDiscordEmbed(url, embed) { try { await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({embeds:[embed]})}); } catch {} }
+
+// ═══════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════
+let currentUser = null;
+let users = {}, roles = {}, products = {}, categories = {}, absences = {}, spesen = {}, stampSessions = {}, tasks = {}, transactions = {};
+let cartItems = [], liveInterval = null, qtyOverlayCallback = null, currentEditWorkerId = null, stampStatus = 'out';
+
+const DEVELOPER = { username:'OM_MA', password:'OM_MA', name:'Developer', isHR:true, isDev:true };
+
+// ═══════════════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════════════
+function toast(msg, type='') {
+  const el = document.createElement('div');
+  el.className = 'toast' + (type ? ' '+type : '');
+  el.textContent = msg;
+  document.getElementById('toast-container').appendChild(el);
+  setTimeout(() => el.remove(), 3000);
+}
+function formatDuration(ms) {
+  const s = Math.floor(ms/1000);
+  return `${String(Math.floor(s/3600)).padStart(2,'0')}:${String(Math.floor((s%3600)/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;
+}
+function formatDurHM(ms) {
+  const s = Math.floor(ms/1000);
+  return `${String(Math.floor(s/3600)).padStart(2,'0')}:${String(Math.floor((s%3600)/60)).padStart(2,'0')}`;
+}
+function todayStr() { return new Date().toISOString().split('T')[0]; }
+function getWeekStart() {
+  const now = new Date(), day = now.getDay();
+  const mon = new Date(now); mon.setDate(now.getDate() - (day===0?6:day-1)); mon.setHours(0,0,0,0);
+  return mon.getTime();
+}
+function openModal(id) {
+  document.getElementById(id).classList.add('open');
+  if (id==='modal-add-worker') populateRoleDropdown('aw-role');
+  if (id==='modal-edit-worker') populateRoleDropdown('ew-role');
+  if (id==='modal-add-product') populateCategoryDropdown('ap-category');
+}
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-overlay').forEach(o => o.addEventListener('click', e => { if(e.target===o) o.classList.remove('open'); }));
+
+async function loadAllData() {
+  const [u,r,p,c,ab,sp,ss,tk,tx] = await Promise.all([
+    fbGet('users'),fbGet('roles'),fbGet('products'),fbGet('categories'),
+    fbGet('absences'),fbGet('spesen'),fbGet('stampSessions'),fbGet('tasks'),fbGet('transactions')
+  ]);
+  users=u||{}; roles=r||{}; products=p||{}; categories=c||{};
+  absences=ab||{}; spesen=sp||{}; stampSessions=ss||{}; tasks=tk||{}; transactions=tx||{};
+}
+
+// ═══════════════════════════════════════════════════════
+// AUTH
+// ═══════════════════════════════════════════════════════
+async function doLogin() {
+  const u = document.getElementById('login-user').value.trim();
+  const p = document.getElementById('login-pass').value.trim();
+  const err = document.getElementById('auth-error');
+  err.textContent = '';
+  if (!u||!p) { err.textContent='Bitte alle Felder ausfüllen.'; return; }
+  if (u===DEVELOPER.username && p===DEVELOPER.password) {
+    currentUser = {...DEVELOPER, uid:'__dev__'}; startApp(); return;
+  }
+  const dbUsers = await fbGet('users');
+  if (dbUsers) {
+    for (const [uid,data] of Object.entries(dbUsers)) {
+      if (data.username===u && data.password===p) {
+        const roleData = data.roleId ? await fbGet(`roles/${data.roleId}`) : null;
+        currentUser = {...data, uid, isHR: roleData?.isHR||false, isDev:false};
+        startApp(); return;
+      }
+    }
+  }
+  err.textContent = 'Ungültige Zugangsdaten.';
+}
+function doLogout() {
+  if (currentUser && stampStatus==='in') toggleStamp();
+  currentUser = null; stampStatus = 'out';
+  document.getElementById('auth-screen').style.display = 'flex';
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('login-user').value = '';
+  document.getElementById('login-pass').value = '';
+  if (liveInterval) { clearInterval(liveInterval); liveInterval=null; }
+}
+async function startApp() {
+  document.getElementById('auth-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  const name = currentUser.name||currentUser.username;
+  document.getElementById('topbar-username').textContent = name;
+  document.getElementById('topbar-avatar').textContent = name.charAt(0).toUpperCase();
+  document.getElementById('home-date').textContent = new Date().toLocaleDateString('de-CH',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  if (currentUser.isHR||currentUser.isDev) document.getElementById('hr-folder-nav').style.display = 'block';
+  await loadAllData();
+  await initStampStatus();
+  setupAutoReset();
+  const t = todayStr();
+  document.getElementById('spesen-datum').value = t;
+  document.getElementById('absenz-von').value = t;
+  document.getElementById('absenz-bis').value = t;
+  showPage('home');
+  switchMode('erp');
+  updateAufgabenBadge();
+}
+
+// ═══════════════════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════════════════
+function switchMode(mode) {
+  document.getElementById('erp-screen').style.display = mode==='erp' ? 'block' : 'none';
+  document.getElementById('pos-screen').style.display = mode==='pos' ? 'flex' : 'none';
+  document.getElementById('mode-erp').classList.toggle('active', mode==='erp');
+  document.getElementById('mode-pos').classList.toggle('active', mode==='pos');
+  if (mode==='pos') renderPOS();
+}
+function showPage(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const el = document.getElementById('page-'+page);
+  if (el) el.classList.add('active');
+  document.querySelectorAll(`[data-page="${page}"]`).forEach(n => n.classList.add('active'));
+  const map = {
+    home: renderHome, aufgaben: renderAufgaben, inout: renderInOut,
+    employees: renderEmployees, spesen: renderSpesen, absenzen: renderAbsenzen,
+    'arbeitsübersicht': renderArbeitsübersicht,
+    'hr-rollen': renderRoles, 'hr-arbeiter': renderHRWorkers,
+    'hr-spesen': renderHRSpesen, 'hr-transaktionen': renderTransaktionen,
+    'hr-statistiken': renderStatistiken, 'hr-lager': renderLager
+  };
+  if (map[page]) map[page]();
+}
+function toggleFolder(id) { document.getElementById(id).classList.toggle('open'); }
+
+// ═══════════════════════════════════════════════════════
+// STAMP
+// ═══════════════════════════════════════════════════════
+async function initStampStatus() {
+  const uid = currentUser.uid;
+  const sess = await fbGet(`stampSessions/${uid}`);
+  if (sess) {
+    stampSessions[uid] = sess;
+    if (Object.values(sess).some(v=>!v.end)) { stampStatus='in'; startLiveTimer(); }
+  }
+  updateStampUI();
+}
+async function toggleStamp() {
+  const uid = currentUser.uid, now = Date.now();
+  if (stampStatus==='out') {
+    await fbPush(`stampSessions/${uid}`, {start:now, end:null, date:todayStr()});
+    stampStatus='in'; startLiveTimer();
+  } else {
+    const s = await fbGet(`stampSessions/${uid}`);
+    if (s) for (const [k,v] of Object.entries(s)) if (!v.end) await fbSet(`stampSessions/${uid}/${k}/end`, now);
+    stampStatus='out';
+    if (liveInterval) { clearInterval(liveInterval); liveInterval=null; }
+    document.getElementById('live-timer-display').style.display='none';
+  }
+  stampSessions[uid] = (await fbGet(`stampSessions/${uid}`)) || {};
+  updateStampUI(); renderWeekTime();
+  if (document.getElementById('page-inout').classList.contains('active')) renderInOut();
+  if (document.getElementById('page-home').classList.contains('active')) renderHome();
+}
+function startLiveTimer() {
+  document.getElementById('live-timer-display').style.display='block';
+  if (liveInterval) clearInterval(liveInterval);
+  liveInterval = setInterval(() => {
+    const s = stampSessions[currentUser.uid]||{};
+    const open = Object.values(s).find(v=>!v.end);
+    if (open) document.getElementById('live-session-time').textContent = formatDuration(Date.now()-open.start);
+    renderWeekTime();
+  }, 1000);
+}
+function renderWeekTime() {
+  if (!currentUser) return;
+  const s = stampSessions[currentUser.uid]||{};
+  const ws = getWeekStart();
+  let total = 0;
+  for (const v of Object.values(s)) if (v.start>=ws) total += (v.end||Date.now())-v.start;
+  document.getElementById('week-time-display').textContent = formatDuration(total);
+}
+function updateStampUI() {
+  const inn = stampStatus==='in';
+  const hb = document.getElementById('home-stamp-btn');
+  const tb = document.getElementById('topbar-stamp-btn');
+  if (hb) { hb.textContent = inn ? '⏹ Gehen' : '▶ Kommen'; hb.className='btn '+(inn?'btn-red':'btn-green'); }
+  if (tb) { tb.textContent = inn?'Gehen':'Kommen'; tb.className='stamp-btn-top'+(inn?' stamped':''); }
+  document.getElementById('stamp-status').textContent = inn ? '✓ Eingestempelt' : 'Nicht eingestempelt';
+  document.getElementById('stamp-status').style.color = inn ? 'var(--green)' : 'var(--text-secondary)';
+}
+
+// ═══════════════════════════════════════════════════════
+// HOME
+// ═══════════════════════════════════════════════════════
+async function renderHome() {
+  updateStampUI(); renderWeekTime();
+  const uid = currentUser.uid;
+  const sess = stampSessions[uid]||{};
+  const today = todayStr(), ws = getWeekStart();
+  const todaySessions = Object.values(sess).filter(s=>s.date===today);
+  const todayEl = document.getElementById('today-sessions-list');
+  todayEl.innerHTML = todaySessions.length ? todaySessions.map(s => {
+    const st = new Date(s.start).toLocaleTimeString('de-CH',{hour:'2-digit',minute:'2-digit'});
+    const en = s.end ? new Date(s.end).toLocaleTimeString('de-CH',{hour:'2-digit',minute:'2-digit'}) : '<span class="green fw-500">Aktiv</span>';
+    const dur = s.end ? formatDuration(s.end-s.start) : '';
+    return `<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border-light);font-size:13px"><span>${st} – ${en}</span><span class="text-muted">${dur}</span></div>`;
+  }).join('') : '<div class="text-muted text-sm">Keine Einträge heute</div>';
+  const days = {};
+  for (const s of Object.values(sess)) if (s.start>=ws) {
+    const d = new Date(s.start).toISOString().split('T')[0];
+    days[d] = (days[d]||0) + ((s.end||Date.now())-s.start);
+  }
+  const dn = ['So','Mo','Di','Mi','Do','Fr','Sa'];
+  const weekEl = document.getElementById('week-summary-list');
+  weekEl.innerHTML = Object.keys(days).length ? Object.entries(days).sort().map(([d,ms]) => {
+    const n = new Date(d);
+    return `<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border-light);font-size:13px"><span>${dn[n.getDay()]}, ${n.toLocaleDateString('de-CH',{day:'numeric',month:'short'})}</span><span class="fw-500">${formatDuration(ms)}</span></div>`;
+  }).join('') : '<div class="text-muted text-sm">Keine Einträge diese Woche</div>';
+}
+
+// ═══════════════════════════════════════════════════════
+// AUFGABEN
+// ═══════════════════════════════════════════════════════
+async function renderAufgaben() {
+  tasks = (await fbGet('tasks'))||{};
+  const uid = currentUser.uid;
+  const isHR = currentUser.isHR||currentUser.isDev;
+  // Filter tasks visible to this user
+  const myTasks = Object.entries(tasks).filter(([id,t]) => {
+    if (t.targetUid === uid) return true; // personal notification (result)
+    if (isHR && t.targetRole === 'HR' && !t.resolvedBy) return true; // HR action tasks
+    return false;
+  }).sort((a,b)=>b[1].createdAt-a[1].createdAt);
+
+  const el = document.getElementById('aufgaben-list');
+  if (!myTasks.length) { el.innerHTML='<div class="text-muted text-sm">Keine Aufgaben</div>'; return; }
+
+  el.innerHTML = myTasks.map(([id,t]) => buildTaskCard(id, t)).join('');
+  updateAufgabenBadge();
+}
+
+function buildTaskCard(id, t) {
+  const isHR = currentUser.isHR||currentUser.isDev;
+  // SPESEN REQUEST (HR sieht)
+  if (t.type==='spesen-request' && t.targetRole==='HR' && !t.resolvedBy) {
+    return `<div class="task-card type-spesen" id="task-${id}">
+      <div class="task-card-header">
+        <div class="task-card-title"><span class="badge badge-blue">Spesen</span> ${t.userName}</div>
+      </div>
+      <div class="task-card-meta">
+        <b>Betrag:</b> EUR ${parseFloat(t.menge||0).toFixed(2)}<br>
+        <b>Datum:</b> ${t.datum}<br>
+        <b>Begründung:</b> ${t.text}
+      </div>
+      <div class="task-card-actions">
+        <button class="btn btn-sm btn-green" onclick="spesenAnnehmen('${id}','${t.spesenId}','${t.targetUid||''}')">Annehmen</button>
+        <button class="btn btn-sm btn-red" onclick="openAblehnen('${id}','${t.spesenId}','${t.targetUid||''}')">Ablehnen</button>
+      </div>
+    </div>`;
+  }
+  // ABSENZ REQUEST (HR sieht)
+  if (t.type==='absenz-request' && t.targetRole==='HR' && !t.resolvedBy) {
+    return `<div class="task-card type-absenz" id="task-${id}">
+      <div class="task-card-header">
+        <div class="task-card-title"><span class="badge badge-orange">Absenz</span> ${t.userName}</div>
+      </div>
+      <div class="task-card-meta">
+        <b>Zeitraum:</b> ${t.von} – ${t.bis}<br>
+        <b>Grund:</b> ${t.grund}
+      </div>
+      <div class="task-card-actions">
+        <button class="btn btn-xs btn-outline" onclick="deleteTask('${id}')">Erledigt / Schliessen</button>
+      </div>
+    </div>`;
+  }
+  // SPESEN RESULT (normaler User sieht)
+  if (t.type==='spesen-result' && t.targetUid===currentUser.uid) {
+    const isAnn = t.status==='Angenommen';
+    return `<div class="task-card ${isAnn?'type-result':'type-result-red'}" id="task-${id}">
+      <button class="task-del-btn" onclick="deleteTask('${id}')">×</button>
+      <div class="task-card-header">
+        <div class="task-card-title">
+          <span class="badge ${isAnn?'badge-green':'badge-red'}">${isAnn?'✓ Angenommen':'✗ Abgelehnt'}</span>
+          Spesenformular
+        </div>
+      </div>
+      <div class="task-card-meta">
+        <b>Betrag:</b> EUR ${parseFloat(t.menge||0).toFixed(2)} — ${t.datum}<br>
+        ${!isAnn&&t.ablehnungsgrund ? `<b>Ablehnungsgrund:</b> ${t.ablehnungsgrund}` : ''}
+      </div>
+    </div>`;
+  }
+  return '';
+}
+
+function updateAufgabenBadge() {
+  if (!currentUser) return;
+  const uid = currentUser.uid;
+  const isHR = currentUser.isHR||currentUser.isDev;
+  let count = 0;
+  for (const t of Object.values(tasks)) {
+    if (t.targetUid===uid) count++;
+    else if (isHR && t.targetRole==='HR' && !t.resolvedBy) count++;
+  }
+  const badge = document.getElementById('aufgaben-badge');
+  if (badge) { badge.textContent = count; badge.style.display = count>0?'inline-block':'none'; }
+}
+
+async function spesenAnnehmen(taskId, spesenId, originUid) {
+  // Update spesen status
+  await fbUpdate(`spesen/${spesenId}`, {status:'Angenommen'});
+  // Mark task resolved
+  await fbUpdate(`tasks/${taskId}`, {resolvedBy:currentUser.uid, resolvedAt:Date.now()});
+  // Send result task to originator
+  const sp = (await fbGet(`spesen/${spesenId}`))||{};
+  await fbPush('tasks', {
+    type:'spesen-result', targetUid: originUid,
+    status:'Angenommen', spesenId,
+    menge: sp.menge, datum: sp.datum, text: sp.text,
+    createdAt: Date.now()
+  });
+  tasks = (await fbGet('tasks'))||{};
+  spesen = (await fbGet('spesen'))||{};
+  toast('Spesen angenommen','success');
+  renderAufgaben(); updateAufgabenBadge();
+}
+
+function openAblehnen(taskId, spesenId, originUid) {
+  document.getElementById('ablehnen-spesen-id').value = spesenId;
+  document.getElementById('ablehnen-task-id').value = taskId;
+  document.getElementById('ablehnen-grund').value = '';
+  // store originUid in a data attr
+  document.getElementById('modal-spesen-ablehnen').dataset.originUid = originUid;
+  openModal('modal-spesen-ablehnen');
+}
+async function confirmAblehnen() {
+  const spesenId = document.getElementById('ablehnen-spesen-id').value;
+  const taskId = document.getElementById('ablehnen-task-id').value;
+  const grund = document.getElementById('ablehnen-grund').value.trim();
+  const originUid = document.getElementById('modal-spesen-ablehnen').dataset.originUid;
+  if (!grund) { toast('Ablehnungsgrund ist Pflicht','error'); return; }
+  await fbUpdate(`spesen/${spesenId}`, {status:'Abgelehnt', ablehnungsgrund:grund});
+  await fbUpdate(`tasks/${taskId}`, {resolvedBy:currentUser.uid, resolvedAt:Date.now()});
+  const sp = (await fbGet(`spesen/${spesenId}`))||{};
+  await fbPush('tasks', {
+    type:'spesen-result', targetUid:originUid,
+    status:'Abgelehnt', ablehnungsgrund:grund, spesenId,
+    menge:sp.menge, datum:sp.datum, text:sp.text,
+    createdAt: Date.now()
+  });
+  tasks=(await fbGet('tasks'))||{};
+  spesen=(await fbGet('spesen'))||{};
+  toast('Spesen abgelehnt');
+  closeModal('modal-spesen-ablehnen');
+  renderAufgaben(); updateAufgabenBadge();
+}
+async function deleteTask(id) {
+  await fbDelete(`tasks/${id}`);
+  tasks=(await fbGet('tasks'))||{};
+  renderAufgaben(); updateAufgabenBadge();
+}
+
+// ═══════════════════════════════════════════════════════
+// IN & OUT
+// ═══════════════════════════════════════════════════════
+async function renderInOut() {
+  const uid = currentUser.uid;
+  const sess = (await fbGet(`stampSessions/${uid}`))||{};
+  stampSessions[uid] = sess;
+  const entries = Object.values(sess).sort((a,b)=>b.start-a.start);
+  const today = todayStr(), ws = getWeekStart();
+  let todayMs=0, weekMs=0;
+  for (const v of entries) {
+    const dur = (v.end||Date.now())-v.start;
+    if (v.date===today) todayMs+=dur;
+    if (v.start>=ws) weekMs+=dur;
+  }
+  document.getElementById('io-heute').textContent = formatDurHM(todayMs);
+  document.getElementById('io-woche').textContent = formatDurHM(weekMs);
+  document.getElementById('io-sessions').textContent = entries.length;
+  document.getElementById('io-status-wrap').innerHTML = stampStatus==='in'
+    ? '<span class="badge badge-green">Eingestempelt</span>'
+    : '<span class="badge badge-gray">Ausgestempelt</span>';
+  const tbody = document.getElementById('inout-table-body');
+  tbody.innerHTML = entries.length ? entries.map(s => {
+    const d = new Date(s.start).toLocaleDateString('de-CH');
+    const st = new Date(s.start).toLocaleTimeString('de-CH',{hour:'2-digit',minute:'2-digit'});
+    const en = s.end ? new Date(s.end).toLocaleTimeString('de-CH',{hour:'2-digit',minute:'2-digit'}) : '<span class="badge badge-green">Aktiv</span>';
+    const dur = s.end ? formatDurHM(s.end-s.start) : '–';
+    return `<tr><td>${d}</td><td>${st}</td><td>${en}</td><td class="fw-500">${dur}</td></tr>`;
+  }).join('') : '<tr><td colspan="4" class="text-muted text-sm" style="padding:20px">Keine Einträge</td></tr>';
+}
+
+// ═══════════════════════════════════════════════════════
+// EMPLOYEES
+// ═══════════════════════════════════════════════════════
+async function renderEmployees() {
+  await loadAllData();
+  const tbody = document.getElementById('employees-table-body');
+  const rows = [];
+  const devOnline = Object.values(stampSessions['__dev__']||{}).some(s=>!s.end);
+  rows.push(`<tr><td><span class="presence-dot ${devOnline?'online':''}"></span></td><td class="fw-500">Developer</td><td>OM_MA</td><td>–</td><td><span class="badge badge-blue">Developer</span></td><td>${devOnline?'<span class="green">Eingestempelt</span>':'<span class="text-muted">Ausgestempelt</span>'}</td></tr>`);
+  for (const [uid,data] of Object.entries(users)) {
+    const online = Object.values(stampSessions[uid]||{}).some(s=>!s.end);
+    const roleData = data.roleId ? roles[data.roleId] : null;
+    rows.push(`<tr><td><span class="presence-dot ${online?'online':''}"></span></td><td class="fw-500">${data.name||''}</td><td>${data.username||''}</td><td>${data.phone||'–'}</td><td>${roleData?`<span class="badge badge-blue">${roleData.name}</span>`:'<span class="text-muted">–</span>'}</td><td>${online?'<span class="green">Eingestempelt</span>':'<span class="text-muted">Ausgestempelt</span>'}</td></tr>`);
+  }
+  tbody.innerHTML = rows.join('');
+}
+
+// ═══════════════════════════════════════════════════════
+// SPESEN (eigene)
+// ═══════════════════════════════════════════════════════
+function populateRoleDropdown(selectId) {
+  const sel = document.getElementById(selectId);
+  sel.innerHTML = '<option value="">-- Rolle wählen --</option>';
+  for (const [id,r] of Object.entries(roles)) sel.innerHTML += `<option value="${id}">${r.name}</option>`;
+}
+function populateCategoryDropdown(selectId) {
+  const sel = document.getElementById(selectId);
+  sel.innerHTML = '<option value="">-- Kategorie wählen --</option>';
+  for (const [id,c] of Object.entries(categories)) sel.innerHTML += `<option value="${id}">${c.name}</option>`;
+}
+
+async function submitSpesen() {
+  const datum = document.getElementById('spesen-datum').value;
+  const menge = document.getElementById('spesen-menge').value;
+  const text = document.getElementById('spesen-text').value.trim();
+  if (!datum||!menge||!text) { toast('Alle Felder ausfüllen','error'); return; }
+  const entry = {
+    userId:currentUser.uid, userName:currentUser.name||currentUser.username,
+    datum, menge:parseFloat(menge), text, status:'Ausstehend', createdAt:Date.now()
+  };
+  const pushed = await fbPush('spesen', entry);
+  const spesenId = pushed?.name;
+  // Create HR task for all HR users
+  await fbPush('tasks', {
+    type:'spesen-request', targetRole:'HR',
+    targetUid: currentUser.uid,
+    userName:currentUser.name||currentUser.username,
+    spesenId, datum, menge:parseFloat(menge), text,
+    createdAt:Date.now()
+  });
+  spesen=(await fbGet('spesen'))||{};
+  tasks=(await fbGet('tasks'))||{};
+  toast('Spesen eingereicht — Status: Ausstehend','success');
+  closeModal('modal-spesen');
+  document.getElementById('spesen-menge').value='';
+  document.getElementById('spesen-text').value='';
+  renderSpesen(); updateAufgabenBadge();
+}
+
+async function renderSpesen() {
+  spesen=(await fbGet('spesen'))||{};
+  const uid=currentUser.uid;
+  const entries = Object.values(spesen).filter(s=>s.userId===uid).sort((a,b)=>b.createdAt-a.createdAt);
+  const tbody = document.getElementById('spesen-table-body');
+  if (!entries.length) { tbody.innerHTML='<tr><td colspan="5" class="text-muted text-sm" style="padding:20px">Keine Spesen erfasst</td></tr>'; return; }
+  tbody.innerHTML = entries.map(s => {
+    const bc = s.status==='Angenommen'?'badge-green':s.status==='Abgelehnt'?'badge-red':'badge-yellow';
+    const grund = s.status==='Abgelehnt'&&s.ablehnungsgrund ? `<span class="text-secondary text-sm">${s.ablehnungsgrund}</span>` : '–';
+    return `<tr><td>${s.datum}</td><td>EUR ${parseFloat(s.menge||0).toFixed(2)}</td><td>${s.text}</td><td><span class="badge ${bc}">${s.status}</span></td><td>${grund}</td></tr>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════════════
+// ABSENZEN
+// ═══════════════════════════════════════════════════════
+async function submitAbsenz() {
+  const von=document.getElementById('absenz-von').value;
+  const bis=document.getElementById('absenz-bis').value;
+  const grund=document.getElementById('absenz-grund').value.trim();
+  if (!von||!bis||!grund) { toast('Alle Felder ausfüllen','error'); return; }
+  const entry = {userId:currentUser.uid, userName:currentUser.name||currentUser.username, von, bis, grund, status:'Ausstehend', createdAt:Date.now()};
+  await fbPush('absences', entry);
+  // Create HR task for absenz notification
+  await fbPush('tasks', {
+    type:'absenz-request', targetRole:'HR',
+    userName:currentUser.name||currentUser.username,
+    von, bis, grund, createdAt:Date.now()
+  });
+  absences=(await fbGet('absences'))||{};
+  tasks=(await fbGet('tasks'))||{};
+  toast('Absenz erfasst','success');
+  closeModal('modal-absenz');
+  document.getElementById('absenz-grund').value='';
+  renderAbsenzen(); updateAufgabenBadge();
+}
+async function renderAbsenzen() {
+  absences=(await fbGet('absences'))||{};
+  const uid=currentUser.uid;
+  const entries=Object.values(absences).filter(a=>a.userId===uid).sort((a,b)=>b.createdAt-a.createdAt);
+  const tbody=document.getElementById('absenzen-table-body');
+  if (!entries.length) { tbody.innerHTML='<tr><td colspan="4" class="text-muted text-sm" style="padding:20px">Keine Absenzen erfasst</td></tr>'; return; }
+  tbody.innerHTML=entries.map(a=>{
+    const bc=a.status==='Angenommen'?'badge-green':a.status==='Abgelehnt'?'badge-red':'badge-yellow';
+    return `<tr><td>${a.von}</td><td>${a.bis}</td><td>${a.grund}</td><td><span class="badge ${bc}">${a.status}</span></td></tr>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════════════
+// ARBEITSÜBERSICHT (Absenzen = grau, eigene = gelb)
+// ═══════════════════════════════════════════════════════
+async function renderArbeitsübersicht() {
+  await loadAllData();
+  const now=new Date(), year=now.getFullYear(), month=now.getMonth();
+  const dim=new Date(year,month+1,0).getDate();
+  const dn=['So','Mo','Di','Mi','Do','Fr','Sa'];
+  const days=[];
+  for (let d=1;d<=dim;d++) { const dt=new Date(year,month,d); days.push({d,name:dn[dt.getDay()],isWeekend:dt.getDay()===0||dt.getDay()===6}); }
+  const allWorkers=[{uid:'__dev__',name:'Developer'},...Object.entries(users).map(([uid,u])=>({uid,name:u.name||u.username}))];
+
+  // Build absence map per user → Set of day numbers
+  const absMap={};
+  for (const a of Object.values(absences)) {
+    if (!absMap[a.userId]) absMap[a.userId]=new Set();
+    const s=new Date(a.von), e=new Date(a.bis), cur=new Date(s);
+    while (cur<=e) {
+      if (cur.getFullYear()===year&&cur.getMonth()===month) absMap[a.userId].add(cur.getDate());
+      cur.setDate(cur.getDate()+1);
+    }
+  }
+
+  let html=`<table style="min-width:800px"><thead><tr><th style="min-width:140px">Mitarbeiter</th>`;
+  html+=days.map(d=>`<th style="text-align:center;min-width:32px;padding:6px 3px;font-size:10px">${d.name}<br>${d.d}</th>`).join('');
+  html+='</tr></thead><tbody>';
+  for (const w of allWorkers) {
+    html+=`<tr><td class="fw-500">${w.name}</td>`;
+    for (const d of days) {
+      const hasAbs=absMap[w.uid]?.has(d.d);
+      let cls='cal-day';
+      let label='';
+      if (hasAbs) { cls='cal-day absent-gray'; label='A'; }
+      else if (d.isWeekend) cls='cal-day weekend';
+      html+=`<td style="text-align:center;padding:3px"><div class="${cls}" style="width:28px;height:28px;border-radius:4px;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:600">${label}</div></td>`;
+    }
+    html+='</tr>';
+  }
+  html+='</tbody></table>';
+  document.getElementById('arbeit-overview-wrap').innerHTML=html;
+}
+
+// ═══════════════════════════════════════════════════════
+// HR – ROLLEN
+// ═══════════════════════════════════════════════════════
+async function renderRoles() {
+  roles=(await fbGet('roles'))||{};
+  const tbody=document.getElementById('roles-table-body');
+  tbody.innerHTML=Object.keys(roles).length
+    ? Object.entries(roles).map(([id,r])=>`<tr><td class="fw-500">${r.name}</td><td>${r.isHR?'<span class="badge badge-green">Ja</span>':'<span class="badge badge-red">Nein</span>'}</td><td><button class="btn btn-sm btn-red" onclick="deleteRole('${id}')">Löschen</button></td></tr>`).join('')
+    : '<tr><td colspan="3" class="text-muted text-sm" style="padding:20px">Keine Rollen erstellt</td></tr>';
+}
+async function saveRole() {
+  const name=document.getElementById('role-name-input').value.trim();
+  const isHR=document.getElementById('role-hr-input').value==='true';
+  if (!name) { toast('Name eingeben','error'); return; }
+  await fbPush('roles',{name,isHR}); roles=(await fbGet('roles'))||{};
+  toast('Rolle erstellt','success'); closeModal('modal-new-role');
+  document.getElementById('role-name-input').value=''; renderRoles();
+}
+async function deleteRole(id) {
+  if (!confirm('Rolle löschen?')) return;
+  await fbDelete(`roles/${id}`); roles=(await fbGet('roles'))||{};
+  toast('Rolle gelöscht'); renderRoles();
+}
+
+// ═══════════════════════════════════════════════════════
+// HR – ARBEITER
+// ═══════════════════════════════════════════════════════
+async function renderHRWorkers() {
+  await loadAllData();
+  const tbody=document.getElementById('hr-workers-table-body');
+  const rows=Object.entries(users).map(([uid,data])=>{
+    const rdata=data.roleId?roles[data.roleId]:null;
+    return `<tr><td class="fw-500">${data.name||''}</td><td>${data.username||''}</td><td>${data.phone||'–'}</td>
+      <td>${rdata?rdata.name:'–'}</td>
+      <td>${data.salesCount||0}</td>
+      <td>EUR ${parseFloat(data.revenue||0).toFixed(2)}</td>
+      <td>EUR ${parseFloat(data.boni||0).toFixed(2)}</td>
+      <td><button class="btn btn-sm btn-outline" onclick="openEditWorker('${uid}')">Bearbeiten</button></td></tr>`;
+  });
+  tbody.innerHTML=rows.length?rows.join(''):'<tr><td colspan="8" class="text-muted text-sm" style="padding:20px">Keine Mitarbeiter</td></tr>';
+}
+async function addWorker() {
+  const fn=document.getElementById('aw-firstname').value.trim(),ln=document.getElementById('aw-lastname').value.trim();
+  const un=document.getElementById('aw-username').value.trim(),pw=document.getElementById('aw-password').value.trim();
+  const phone=document.getElementById('aw-phone').value.trim(),roleId=document.getElementById('aw-role').value;
+  if (!fn||!un||!pw) { toast('Pflichtfelder ausfüllen','error'); return; }
+  if (Object.keys(users).length>=60) { toast('Max 60 Logins erreicht','error'); return; }
+  if (un==='OM_MA') { toast('Username nicht erlaubt','error'); return; }
+  const ex=await fbGet('users');
+  if (ex&&Object.values(ex).some(u=>u.username===un)) { toast('Username vergeben','error'); return; }
+  await fbPush('users',{name:`${fn} ${ln}`,username:un,password:pw,phone,roleId,salesCount:0,revenue:0,boni:0,createdAt:Date.now()});
+  users=(await fbGet('users'))||{};
+  toast('Login erstellt','success'); closeModal('modal-add-worker'); renderHRWorkers();
+}
+async function openEditWorker(uid) {
+  currentEditWorkerId=uid;
+  const data=users[uid]; if (!data) return;
+  const parts=(data.name||'').split(' ');
+  document.getElementById('ew-id').value=uid;
+  document.getElementById('ew-firstname').value=parts[0]||'';
+  document.getElementById('ew-lastname').value=parts.slice(1).join(' ')||'';
+  document.getElementById('ew-username').value=data.username||'';
+  document.getElementById('ew-password').value='';
+  document.getElementById('ew-phone').value=data.phone||'';
+  document.getElementById('ew-sales-count').textContent=data.salesCount||0;
+  document.getElementById('ew-revenue').textContent=`EUR ${parseFloat(data.revenue||0).toFixed(2)}`;
+  document.getElementById('ew-boni').textContent=`EUR ${parseFloat(data.boni||0).toFixed(2)}`;
+  populateRoleDropdown('ew-role');
+  openModal('modal-edit-worker');
+  if (data.roleId) setTimeout(()=>{const s=document.getElementById('ew-role');if(s)s.value=data.roleId;},50);
+}
+async function saveWorker() {
+  const uid=currentEditWorkerId; if (!uid) return;
+  const fn=document.getElementById('ew-firstname').value.trim(),ln=document.getElementById('ew-lastname').value.trim();
+  const un=document.getElementById('ew-username').value.trim(),pw=document.getElementById('ew-password').value.trim();
+  const phone=document.getElementById('ew-phone').value.trim(),roleId=document.getElementById('ew-role').value;
+  if (!fn||!un) { toast('Pflichtfelder ausfüllen','error'); return; }
+  if (un==='OM_MA'&&uid!=='__dev__') { toast('Username nicht erlaubt','error'); return; }
+  const up={name:`${fn} ${ln}`,username:un,phone,roleId};
+  if (pw) up.password=pw;
+  await fbUpdate(`users/${uid}`,up); users=(await fbGet('users'))||{};
+  toast('Gespeichert','success'); closeModal('modal-edit-worker'); renderHRWorkers();
+}
+async function deleteWorker() {
+  const uid=currentEditWorkerId;
+  if (uid==='__dev__') { toast('Developer kann nicht gelöscht werden','error'); return; }
+  if (!confirm('Mitarbeiter löschen?')) return;
+  await fbDelete(`users/${uid}`); users=(await fbGet('users'))||{};
+  toast('Gelöscht'); closeModal('modal-edit-worker'); renderHRWorkers();
+}
+
+// ═══════════════════════════════════════════════════════
+// HR – SPESEN (alle)
+// ═══════════════════════════════════════════════════════
+async function renderHRSpesen() {
+  spesen=(await fbGet('spesen'))||{};
+  const tbody=document.getElementById('hr-spesen-tbody');
+  const all=Object.entries(spesen).sort((a,b)=>b[1].createdAt-a[1].createdAt);
+  if (!all.length) { tbody.innerHTML='<tr><td colspan="6" class="text-muted text-sm" style="padding:20px">Keine Spesen eingereicht</td></tr>'; return; }
+  tbody.innerHTML=all.map(([id,s])=>{
+    const bc=s.status==='Angenommen'?'badge-green':s.status==='Abgelehnt'?'badge-red':'badge-yellow';
+    return `<tr><td class="fw-500">${s.userName||'–'}</td><td>${s.datum}</td><td>EUR ${parseFloat(s.menge||0).toFixed(2)}</td><td>${s.text||''}</td><td><span class="badge ${bc}">${s.status}</span></td><td class="text-secondary text-sm">${s.ablehnungsgrund||'–'}</td></tr>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════════════
+// HR – TRANSAKTIONEN
+// ═══════════════════════════════════════════════════════
+async function renderTransaktionen() {
+  transactions=(await fbGet('transactions'))||{};
+  const tbody=document.getElementById('txn-tbody');
+  const all=Object.entries(transactions).sort((a,b)=>b[1].timestamp-a[1].timestamp).slice(0,50);
+  if (!all.length) { tbody.innerHTML='<tr><td colspan="4" class="text-muted text-sm" style="padding:20px">Keine Transaktionen</td></tr>'; return; }
+  tbody.innerHTML=all.map(([id,t])=>{
+    const dt=new Date(t.timestamp).toLocaleString('de-CH',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+    const artikel=t.items?t.items.map(i=>`${i.qty}× ${i.name}`).join(', '):'–';
+    const shortArt=artikel.length>40?artikel.substring(0,40)+'…':artikel;
+    return `<tr class="txn-row" onclick="showTxnDetail('${id}')">
+      <td>${dt}</td><td class="fw-500">${t.userName||'–'}</td>
+      <td class="fw-500">EUR ${parseFloat(t.total||0).toFixed(2)}</td>
+      <td class="text-secondary">${shortArt}</td></tr>`;
+  }).join('');
+}
+function showTxnDetail(id) {
+  const t=transactions[id]; if (!t) return;
+  const dt=new Date(t.timestamp).toLocaleString('de-CH',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+  let html=`<div class="mb-12"><span class="text-muted text-xs">MITARBEITER</span><div class="fw-500">${t.userName||'–'}</div></div>`;
+  html+=`<div class="mb-12"><span class="text-muted text-xs">DATUM</span><div>${dt}</div></div>`;
+  if (t.items&&t.items.length) {
+    html+='<div class="mb-12"><span class="text-muted text-xs">ARTIKEL</span>';
+    html+='<table style="width:100%;margin-top:6px"><thead><tr><th>Artikel</th><th>Menge</th><th>Preis/Stk</th><th>Total</th></tr></thead><tbody>';
+    html+=t.items.map(i=>`<tr><td>${i.name}</td><td>${i.qty}</td><td>EUR ${parseFloat(i.price||0).toFixed(2)}</td><td>EUR ${(i.qty*i.price).toFixed(2)}</td></tr>`).join('');
+    html+='</tbody></table></div>';
+  }
+  html+=`<div class="hr"></div><div style="display:flex;justify-content:space-between;font-size:16px;font-weight:600"><span>Total</span><span>EUR ${parseFloat(t.total||0).toFixed(2)}</span></div>`;
+  document.getElementById('txn-detail-body').innerHTML=html;
+  openModal('modal-txn-detail');
+}
+
+// ═══════════════════════════════════════════════════════
+// HR – STATISTIKEN
+// ═══════════════════════════════════════════════════════
+async function renderStatistiken() {
+  await loadAllData();
+  let brutto=0,verkäufe=0,lagerwert=0;
+  for (const u of Object.values(users)) { brutto+=parseFloat(u.revenue||0); verkäufe+=parseInt(u.salesCount||0); }
+  const netto=brutto*0.81; // inkl. 19% MwSt
+  for (const p of Object.values(products)) lagerwert+=parseFloat(p.buyPrice||0)*parseInt(p.stock||0);
+  const niedrig=Object.values(products).filter(p=>parseInt(p.stock||0)<20).length;
+  document.getElementById('stats-grid').innerHTML=`
+    <div class="stat-card"><div class="stat-label">Umsatz Brutto</div><div class="stat-value">EUR ${brutto.toFixed(2)}</div><div class="stat-sub">Letzten 30 Tage</div></div>
+    <div class="stat-card"><div class="stat-label">Umsatz Netto</div><div class="stat-value">EUR ${netto.toFixed(2)}</div><div class="stat-sub">Letzten 30 Tage</div></div>
+    <div class="stat-card"><div class="stat-label">Lagerwert</div><div class="stat-value">EUR ${lagerwert.toFixed(2)}</div><div class="stat-sub">Gesamt</div></div>
+    <div class="stat-card"><div class="stat-label">Verkäufe</div><div class="stat-value">${verkäufe}</div><div class="stat-sub">Diesen Monat</div></div>
+    <div class="stat-card"><div class="stat-label">Niedriger Bestand</div><div class="stat-value ${niedrig>0?'red':''}">${niedrig}</div><div class="stat-sub">Produkte unter 20</div></div>`;
+}
+
+// ═══════════════════════════════════════════════════════
+// HR – LAGER
+// ═══════════════════════════════════════════════════════
+async function renderLager() {
+  products=(await fbGet('products'))||{};
+  categories=(await fbGet('categories'))||{};
+  const catDisplay=document.getElementById('category-list-display');
+  catDisplay.innerHTML=Object.entries(categories).map(([id,c])=>`
+    <span style="display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border:1px solid var(--border);border-radius:20px;font-size:13px;background:var(--white)">
+      <span style="cursor:pointer" onclick="openEditCategory('${id}')">${c.name}</span>
+      <span style="cursor:pointer;color:var(--text-muted);font-size:12px" onclick="deleteCategory('${id}')">×</span>
+    </span>`).join('')||'<span class="text-muted text-sm">Keine Kategorien</span>';
+  const tbody=document.getElementById('lager-table-body');
+  if (!Object.keys(products).length) { tbody.innerHTML='<tr><td colspan="7" class="text-muted text-sm" style="padding:20px">Keine Produkte</td></tr>'; return; }
+  tbody.innerHTML=Object.entries(products).map(([id,p])=>{
+    const stock=parseInt(p.stock||0);
+    const dotClass=stock>=80?'dot-green':stock<20?'dot-red':'dot-yellow';
+    const catName=p.categoryId?(categories[p.categoryId]?.name||'–'):'–';
+    return `<tr>
+      <td><span class="dot ${dotClass}"></span></td>
+      <td><span class="editable-field" contenteditable="true" onblur="updateProduct('${id}','name',this.textContent.trim())">${p.name||''}</span></td>
+      <td><span class="editable-field" contenteditable="true" onblur="updateProductStock('${id}',this.textContent.trim())">${stock}</span></td>
+      <td><span class="editable-field" contenteditable="true" onblur="updateProductPrice('${id}','buyPrice',this.textContent)">EUR ${parseFloat(p.buyPrice||0).toFixed(2)}</span></td>
+      <td><span class="editable-field" contenteditable="true" onblur="updateProductPrice('${id}','sellPrice',this.textContent)">EUR ${parseFloat(p.sellPrice||0).toFixed(2)}</span></td>
+      <td>${catName}</td>
+      <td><button class="btn btn-sm btn-red" onclick="deleteProduct('${id}')">Löschen</button></td>
+    </tr>`;
+  }).join('');
+}
+async function addProduct() {
+  const name=document.getElementById('ap-name').value.trim();
+  const stock=parseInt(document.getElementById('ap-stock').value)||0;
+  const buyPrice=parseFloat(document.getElementById('ap-buy').value)||0;
+  const sellPrice=parseFloat(document.getElementById('ap-sell').value)||0;
+  const categoryId=document.getElementById('ap-category').value;
+  if (!name) { toast('Produktname eingeben','error'); return; }
+  await fbPush('products',{name,stock,buyPrice,sellPrice,categoryId});
+  products=(await fbGet('products'))||{};
+  toast('Produkt hinzugefügt','success'); closeModal('modal-add-product');
+  renderLager(); if (stock<20) checkLowStock(name,stock);
+}
+async function updateProduct(id,field,val) {
+  await fbUpdate(`products/${id}`,{[field]:val}); products[id]={...products[id],[field]:val};
+}
+async function updateProductPrice(id,field,val) {
+  const clean=parseFloat(val.replace(/[^0-9.,]/g,'').replace(',','.'))||0;
+  await fbUpdate(`products/${id}`,{[field]:clean}); products[id]={...products[id],[field]:clean};
+}
+async function updateProductStock(id,val) {
+  const stock=parseInt(val)||0;
+  await fbUpdate(`products/${id}`,{stock}); products[id]={...products[id],stock};
+  if (stock<20) checkLowStock(products[id]?.name||'',stock);
+  renderLager();
+}
+async function deleteProduct(id) {
+  if (!confirm('Produkt löschen?')) return;
+  await fbDelete(`products/${id}`); products=(await fbGet('products'))||{};
+  toast('Produkt gelöscht'); renderLager();
+}
+async function addCategory() {
+  const name=document.getElementById('cat-name-input').value.trim();
+  if (!name) { toast('Name eingeben','error'); return; }
+  await fbPush('categories',{name}); categories=(await fbGet('categories'))||{};
+  toast('Kategorie hinzugefügt','success'); closeModal('modal-add-category');
+  document.getElementById('cat-name-input').value=''; renderLager();
+}
+function openEditCategory(id) {
+  document.getElementById('edit-cat-id').value=id;
+  document.getElementById('edit-cat-name').value=categories[id]?.name||'';
+  openModal('modal-edit-category');
+}
+async function saveCategoryEdit() {
+  const id=document.getElementById('edit-cat-id').value;
+  const name=document.getElementById('edit-cat-name').value.trim();
+  if (!name) { toast('Name eingeben','error'); return; }
+  await fbUpdate(`categories/${id}`,{name}); categories=(await fbGet('categories'))||{};
+  toast('Gespeichert','success'); closeModal('modal-edit-category'); renderLager();
+}
+async function deleteCategory(id) {
+  if (!confirm('Kategorie löschen?')) return;
+  await fbDelete(`categories/${id}`); categories=(await fbGet('categories'))||{};
+  toast('Kategorie gelöscht'); renderLager();
+}
+async function checkLowStock(name,stock) {
+  if (stock<20) await sendDiscordEmbed(WH_LAGER,{
+    title:'⚠️ Lagerwarnung',description:`**${name}** — Lagerbestand unter 20`,
+    color:0xFF0000,fields:[{name:'Aktueller Bestand',value:String(stock),inline:true}],
+    timestamp:new Date().toISOString()
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+// POS
+// ═══════════════════════════════════════════════════════
+let selectedCategory='all';
+async function renderPOS() {
+  products=(await fbGet('products'))||{};
+  categories=(await fbGet('categories'))||{};
+  const catDiv=document.getElementById('pos-categories');
+  catDiv.innerHTML=`<button class="pos-cat-btn ${selectedCategory==='all'?'active':''}" onclick="filterPOSCategory('all')">Alle</button>`;
+  for (const [id,c] of Object.entries(categories))
+    catDiv.innerHTML+=`<button class="pos-cat-btn ${selectedCategory===id?'active':''}" onclick="filterPOSCategory('${id}')">${c.name}</button>`;
+  const grid=document.getElementById('pos-product-grid');
+  const prods=Object.entries(products).filter(([id,p])=>selectedCategory==='all'||p.categoryId===selectedCategory);
+  grid.innerHTML=prods.length
+    ? prods.map(([id,p])=>`<div class="pos-product-card" onclick="addToCart('${id}')"><div class="pos-product-name">${p.name||''}</div><div class="pos-product-price">EUR ${parseFloat(p.sellPrice||0).toFixed(2)}</div></div>`).join('')
+    : '<div class="text-muted text-sm">Keine Produkte</div>';
+  renderReceipt();
+}
+function filterPOSCategory(id) { selectedCategory=id; renderPOS(); }
+function addToCart(pid) {
+  const p=products[pid]; if (!p) return;
+  const ex=cartItems.find(i=>i.id===pid);
+  if (ex) ex.qty++; else cartItems.push({id:pid,name:p.name,price:parseFloat(p.sellPrice||0),qty:1});
+  renderReceipt();
+}
+function renderReceipt() {
+  const container=document.getElementById('pos-receipt-items');
+  if (!cartItems.length) { container.innerHTML='<div class="pos-empty">Noch keine Produkte</div>'; document.getElementById('pos-total').textContent='EUR 0.00'; return; }
+  container.innerHTML=cartItems.map((item,i)=>`
+    <div class="pos-receipt-item">
+      <div class="pos-item-name">${item.name}</div>
+      <div class="pos-qty-ctrl">
+        <button class="pos-qty-btn" onclick="changeQty(${i},-1)">−</button>
+        <span class="pos-qty-num" onclick="openQtyOverlay(${i})">${item.qty}</span>
+        <button class="pos-qty-btn" onclick="changeQty(${i},1)">+</button>
+      </div>
+      <div class="pos-item-price">EUR ${(item.price*item.qty).toFixed(2)}</div>
+      <span class="pos-item-del" onclick="removeFromCart(${i})">×</span>
+    </div>`).join('');
+  const total=cartItems.reduce((s,i)=>s+i.price*i.qty,0);
+  document.getElementById('pos-total').textContent=`EUR ${total.toFixed(2)}`;
+}
+function changeQty(i,d) { cartItems[i].qty=Math.max(1,cartItems[i].qty+d); renderReceipt(); }
+function removeFromCart(i) { cartItems.splice(i,1); renderReceipt(); }
+function clearReceipt() { cartItems=[]; renderReceipt(); }
+function openQtyOverlay(i) {
+  document.getElementById('qty-overlay-label').textContent=cartItems[i].name;
+  document.getElementById('qty-overlay-input').value=cartItems[i].qty;
+  qtyOverlayCallback=v=>{cartItems[i].qty=Math.max(1,v);renderReceipt();};
+  document.getElementById('qty-overlay').classList.add('open');
+  document.getElementById('qty-overlay-input').focus();
+}
+function closeQtyOverlay() { document.getElementById('qty-overlay').classList.remove('open'); qtyOverlayCallback=null; }
+function confirmQtyOverlay() { const v=parseInt(document.getElementById('qty-overlay-input').value)||1; if(qtyOverlayCallback)qtyOverlayCallback(v); closeQtyOverlay(); }
+document.getElementById('qty-overlay').addEventListener('click',e=>{if(e.target===document.getElementById('qty-overlay'))closeQtyOverlay();});
+
+async function sendReceipt() {
+  if (!cartItems.length) { toast('Keine Artikel','error'); return; }
+  const total=cartItems.reduce((s,i)=>s+i.price*i.qty,0);
+  const user=currentUser, now=new Date();
+  const fields=cartItems.map(i=>({name:i.name,value:`${i.qty}× × EUR ${i.price.toFixed(2)} = EUR ${(i.price*i.qty).toFixed(2)}`,inline:true}));
+  fields.push({name:'─────────────',value:`**Total: EUR ${total.toFixed(2)}**`,inline:false});
+  await sendDiscordEmbed(WH_KASSE,{
+    title:'🧾 Quittung',
+    description:`Verkäufer: **${user.name||user.username}**\nDatum: ${now.toLocaleDateString('de-CH')} ${now.toLocaleTimeString('de-CH',{hour:'2-digit',minute:'2-digit'})}`,
+    color:0x1a1d23,fields,timestamp:now.toISOString()
+  });
+  // Save transaction
+  await fbPush('transactions',{
+    userId:user.uid, userName:user.name||user.username,
+    total, timestamp:now.getTime(),
+    items:cartItems.map(i=>({id:i.id,name:i.name,price:i.price,qty:i.qty}))
+  });
+  // Update user stats
+  if (user.uid!=='__dev__') {
+    const ex=users[user.uid]||{};
+    await fbUpdate(`users/${user.uid}`,{
+      revenue:parseFloat(ex.revenue||0)+total,
+      salesCount:parseInt(ex.salesCount||0)+1,
+      boni:parseFloat(ex.boni||0)+(total*0.10)+2000
+    });
+    users=(await fbGet('users'))||{};
+  }
+  // Deduct stock
+  for (const item of cartItems) {
+    const p=products[item.id]; if (!p) continue;
+    const ns=Math.max(0,parseInt(p.stock||0)-item.qty);
+    await fbUpdate(`products/${item.id}`,{stock:ns});
+    products[item.id]={...p,stock:ns};
+    if (ns<20) checkLowStock(p.name,ns);
+  }
+  toast(`Quittung abgesendet! EUR ${total.toFixed(2)}`,'success');
+  clearReceipt();
+}
+
+// ═══════════════════════════════════════════════════════
+// AUTO RESET
+// ═══════════════════════════════════════════════════════
+function setupAutoReset() {
+  setInterval(async()=>{
+    const now=new Date();
+    const gmt2=new Date(now.toLocaleString('en-US',{timeZone:'Europe/Zurich'}));
+    const h=gmt2.getHours(),m=gmt2.getMinutes(),s=gmt2.getSeconds();
+    const dom=gmt2.getDate(), last=new Date(gmt2.getFullYear(),gmt2.getMonth()+1,0).getDate();
+    if (dom===last&&h===23&&m===59&&s===0) {
+      for (const uid of Object.keys(users)) await fbUpdate(`users/${uid}`,{revenue:0,salesCount:0,boni:0});
+      await loadAllData(); toast('Monatliche Statistiken zurückgesetzt');
+    }
+  },1000);
+}
+
+// ═══════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════
+document.getElementById('login-pass').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+const _today=new Date().toISOString().split('T')[0];
+document.getElementById('spesen-datum').value=_today;
+document.getElementById('absenz-von').value=_today;
+document.getElementById('absenz-bis').value=_today;
+</script>
+</body>
+</html>
